@@ -1,4 +1,7 @@
-use std::{path::PathBuf, io::{self, BufRead, Seek}, fs::File};
+use std::{
+    io::{self, BufRead},
+    path::PathBuf,
+};
 
 use clap::Parser;
 use zstd::bulk::Compressor;
@@ -36,7 +39,11 @@ fn main() -> anyhow::Result<()> {
     for s in &samples {
         naive.record(c.compress(s.as_bytes())?.len());
     }
-    println!("naive: {:.2} {:?}", uncompressed.total as f64 / naive.total as f64, naive);
+    println!(
+        "naive: {:.2} {:?}",
+        uncompressed.total as f64 / naive.total as f64,
+        naive
+    );
 
     let mut c = zstd::bulk::Compressor::new(args.level)?;
     let mut buf = Vec::with_capacity(args.block_size);
@@ -51,7 +58,11 @@ fn main() -> anyhow::Result<()> {
     if !buf.is_empty() {
         block.record(c.compress(&buf)?.len());
     }
-    println!("block: {:.2} {:?}", uncompressed.total as f64 / block.total as f64, block);
+    println!(
+        "block: {:.2} {:?}",
+        uncompressed.total as f64 / block.total as f64,
+        block
+    );
 
     let mut c = Compressor::with_dictionary(
         args.level,
@@ -61,7 +72,11 @@ fn main() -> anyhow::Result<()> {
     for s in &samples {
         dict.record(c.compress(s.as_bytes())?.len());
     }
-    println!("dict: {:.2} {:?}", uncompressed.total as f64 / dict.total as f64, dict);
+    println!(
+        "dict: {:.2} {:?}",
+        uncompressed.total as f64 / dict.total as f64,
+        dict
+    );
 
     Ok(())
 }
